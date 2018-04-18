@@ -1,0 +1,27 @@
+#######################################
+# Syntax Coloring Map For LCDKeypadMenu
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+LCDKeypadMenu	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin					KEYWORD2
+process					KEYWORD2
+addSetpoint				KEYWORD2
+getValue				KEYWORD2
+setValue				KEYWORD2
+installScreenHandler	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+SETPOINT_INT	LITERAL1
+SETPOINT_BOOL	LITERAL1
+
