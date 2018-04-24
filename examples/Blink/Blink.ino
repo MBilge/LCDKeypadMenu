@@ -22,13 +22,23 @@ byte MENU_TURN_OFF, MENU_TURN_ON, MENU_BACKLIGHT;
 bool ledState = false;
 unsigned long ledSwitchTime = millis();
 
-void screenHandler() {
+void firstSreenHandler() {
   lcd.setCursor(0, 0);
   lcd.print("Turn off: ");
   lcd.print(menu.getValue(MENU_TURN_OFF));
   lcd.setCursor(0, 1);
   lcd.print("Turn on:  ");
   lcd.print(menu.getValue(MENU_TURN_ON));
+}
+
+void secondSreenHandler() {
+  lcd.setCursor(0, 0);
+  lcd.print("Backlight:");
+  if (menu.getValue(MENU_BACKLIGHT)) {
+    lcd.print("on");
+  } else {
+    lcd.print("off");
+  }
 }
 
 void setup() {
@@ -41,7 +51,8 @@ void setup() {
   menu.setValue(MENU_TURN_ON, 1000);
   MENU_BACKLIGHT = menu.addSetpoint("Backlight", LCDKeypadMenu::SETPOINT_BOOL);
   menu.setValue(MENU_BACKLIGHT, 1);
-  menu.installScreenHandler(screenHandler);
+  menu.addScreenHandler(firstSreenHandler);
+  menu.addScreenHandler(secondSreenHandler);
 }
 
 void loop() {

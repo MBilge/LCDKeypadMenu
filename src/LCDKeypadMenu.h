@@ -11,6 +11,11 @@ struct Setpoint {
   byte type;
 };
 
+struct Screen {
+  void (*callback)(void);
+  Screen *next;
+};
+
 class LCDKeypadMenu {
 public:
 	static const byte SETPOINT_INT = 0;
@@ -23,7 +28,7 @@ public:
 	String getDescription(byte i);
 	unsigned int getValue(byte i);
 	void setValue(byte i, unsigned int v);
-	void installScreenHandler(void (*callback)(void));
+	byte addScreenHandler(void (*callback)(void));
 private:
 	static const byte MENU_HOME = 0;
 	static const byte MENU_SELECT = 1;
@@ -34,14 +39,16 @@ private:
 	unsigned long lastKeyPressTime;
 	unsigned long editedValue, prevEditedValue;
 	byte currentSetpointIndex, prevSetpointIndex;
+	byte currentScreenIndex, prevScreenIndex;
 	bool repaint;
 	byte setpointCount;
+	byte screenCount;
 	Setpoint *rootSetpoint;
-	void (*handleScreen)(void);
+	Screen *rootScreen;
 	
 	void print();
+	void printHome();
 	void read();
-	void emptyScreenHandler() {};
 	Setpoint *getSetpoint(byte i);
 	byte getSetpointType();
 };

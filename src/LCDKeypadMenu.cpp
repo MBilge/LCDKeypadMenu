@@ -7,6 +7,9 @@ LCDKeypadMenu::LCDKeypadMenu() {
 	prevSetpointIndex = 0;
 	rootSetpoint = NULL;
 	setpointCount = 0;
+	rootScreen = NULL;
+	screenCount = 0;
+	currentScreenIndex = 0;
 }
 
 void LCDKeypadMenu::begin(LiquidCrystal_I2C *display, Keypad *k) {
@@ -52,12 +55,25 @@ void LCDKeypadMenu::setValue(byte i, unsigned int v) {
 	getSetpoint(i)->value = v;
 }
 
-void LCDKeypadMenu::installScreenHandler(void (*callback)(void)) {
-	handleScreen = callback;
+byte LCDKeypadMenu::addScreenHandler(void (*callback)(void)) {
+	Screen *s = new Screen;
+	s->callback = callback;
+	s->next = NULL;
+	if (rootScreen) {
+		Screen *last = rootScreen;
+		while (last->next != NULL)
+			last = last->next;
+		last->next = s;
+	} else {
+		rootScreen = s;
+	}
+	return screenCount++;
 }
 
 void LCDKeypadMenu::print() {
 	repaint = prevMenuState != menuState;
+	if (menuState == MENU_HOME)
+		repaint |= currentScreenIndex != prevScreenIndex;
 	if (menuState == MENU_SELECT)
 		repaint |= currentSetpointIndex != prevSetpointIndex;
 	if (menuState == MENU_EDIT)
@@ -68,7 +84,8 @@ void LCDKeypadMenu::print() {
 	case MENU_HOME: {
 		lcd->noBlink();
 		lcd->clear();
-		handleScreen();
+		printHome();
+		prevScreenIndex = currentScreenIndex;
 		break;
 	}
 	case MENU_SELECT: {
@@ -109,6 +126,17 @@ void LCDKeypadMenu::print() {
 	}
 }
 
+void LCDKeypadMenu::printHome() {
+	if (!rootScreen)
+		return;
+	byte index = 0;
+	Screen *screen = rootScreen;
+	while (index++ < currentScreenIndex and screen->next) {
+		screen = screen->next;
+	}
+	screen->callback();
+}
+
 void LCDKeypadMenu::read() {
 	char key = keypad->getKey();
 	if (key)
@@ -143,7 +171,23 @@ void LCDKeypadMenu::read() {
 				editedValue = key == '0'? 0: 1;
 			}
 		}
-	}		
+	}
+	if (key == '4') {
+		if (menuState == MENU_HOME) {
+			if (currentScreenIndex > 0)
+				--currentScreenIndex;
+			else
+				currentScreenIndex = screenCount - 1;
+		}
+	}
+	if (key == '6') {
+		if (menuState == MENU_HOME) {
+			if (currentScreenIndex < screenCount - 1)
+				++currentScreenIndex;
+			else
+				currentScreenIndex = 0;
+		}
+	}
 	if (key == '#') {
 		if (menuState == MENU_SELECT) {
 			menuState = MENU_HOME;
