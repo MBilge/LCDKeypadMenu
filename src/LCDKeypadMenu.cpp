@@ -201,7 +201,8 @@ void LCDKeypadMenu::read() {
 			editedValue /= 10;
 		}
 	}
-	if (lastKeyPressTime + 5000 < millis())
+	int pause = menuState == MENU_EDIT? 10000: 5000;
+	if (lastKeyPressTime + pause < millis())
 		menuState = MENU_HOME;
 }
 
